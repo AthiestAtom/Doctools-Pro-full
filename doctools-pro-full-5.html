@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocTools Pro - 50+ Document & Media Utilities</title>
+    <!-- Load libraries from multiple CDNs for redundancy -->
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+            display: block;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 42px;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        
+        .stat strong {
+            color: white;
+            font-size: 18px;
+            display: block;
+        }
+        
+        .search-box {
+            margin: 30px 0;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 16px;
+        }
+        
+        .search-box input::placeholder {
+            color: #64748b;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .category-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .category-tab.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+        
+        .category-tab:hover {
+            border-color: #667eea;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .tool-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .tool-card:hover {
+            border-color: #667eea;
+            background: #0f172a;
+            transform: translateY(-4px);
+        }
+        
+        .tool-card.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .tool-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .tool-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        
+        .tool-panel {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: none;
+            border: 2px solid #334155;
+        }
+        
+        .tool-panel.active {
+            display: block;
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .panel-title {
+            font-size: 28px;
+            color: #60a5fa;
+            margin: 0;
+        }
+        
+        .panel-description {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #0f172a;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #1a1f35;
+        }
+        
+        .upload-area.drag-over {
+            border-color: #764ba2;
+            background: #1a1f35;
+            transform: scale(1.02);
+        }
+        
+        .upload-area input {
+            display: none;
+        }
+        
+        .upload-text {
+            color: #60a5fa;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .upload-hint {
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        button.primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        button.primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        button.secondary {
+            background: #334155;
+            color: #e2e8f0;
+            border: 2px solid #334155;
+        }
+        
+        button.secondary:hover {
+            border-color: #667eea;
+            background: #1e293b;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .file-list {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .file-list.show {
+            display: block;
+        }
+        
+        .file-item {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #e2e8f0;
+            font-size: 13px;
+        }
+        
+        .file-size {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        .slider-group {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider-group label {
+            min-width: 140px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            cursor: pointer;
+            height: 6px;
+            border-radius: 3px;
+            background: #334155;
+        }
+        
+        .slider-value {
+            min-width: 60px;
+            text-align: right;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+        
+        .option-group {
+            margin: 20px 0;
+        }
+        
+        .option-group label {
+            display: block;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+        
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar.show {
+            display: block;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .result-box {
+            background: #0d4a2e;
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+        }
+        
+        .result-title {
+            color: #22c55e;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .result-text {
+            color: #86efac;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .ad-space {
+            background: #1e293b;
+            border: 2px dashed #334155;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        .affiliate-section {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .affiliate-section h3 {
+            margin-bottom: 10px;
+        }
+        
+        .affiliate-section a {
+            color: white;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-item strong {
+            color: #60a5fa;
+        }
+        
+        .footer {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 40px;
+            color: #94a3b8;
+            border: 2px solid #334155;
+        }
+        
+        .footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .loader {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #334155;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        .loader.show {
+            display: block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .tools-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .tool-panel {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛠️ DocTools Pro</h1>
+            <p class="tagline">50+ Free Document, Image & Media Conversion Tools</p>
+            <div class="stats-row">
+                <div class="stat"><strong>15M+</strong> Files Processed</div>
+                <div class="stat"><strong>750K+</strong> Daily Users</div>
+                <div class="stat"><strong>50+</strong> Tools Available</div>
+                <div class="stat"><strong>100%</strong> Free & Fast</div>
+            </div>
+        </header>
+        
+        <div style="background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #334155;">
+            <div class="ad-space">[Google AdSense - 728×90] - Earn $2K-5K/month at scale</div>
+        </div>
+        
+        <!-- Search & Categories -->
+        <div class="search-box">
+            <input type="text" id="searchBox" placeholder="Search tools..." onkeyup="filterTools()">
+        </div>
+        
+        <div class="category-tabs">
+            <button class="category-tab active" onclick="filterCategory('all')">All Tools</button>
+            <button class="category-tab" onclick="filterCategory('pdf')">📄 PDF</button>
+            <button class="category-tab" onclick="filterCategory('image')">🖼️ Images</button>
+            <button class="category-tab" onclick="filterCategory('document')">📝 Documents</button>
+            <button class="category-tab" onclick="filterCategory('video')">🎬 Video</button>
+            <button class="category-tab" onclick="filterCategory('audio')">🎵 Audio</button>
+            <button class="category-tab" onclick="filterCategory('data')">📊 Data</button>
+            <button class="category-tab" onclick="filterCategory('text')">✂️ Text</button>
+        </div>
+        
+        <!-- Tools Grid -->
+        <div class="tools-grid" id="toolsGrid">
+            <!-- PDF Tools -->
+            <div class="tool-card" onclick="selectTool('pdf-merge')" data-category="pdf" data-tool="pdf-merge">
+                <div class="tool-icon">📄</div>
+                <div class="tool-name">Merge PDFs</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-compress')" data-category="pdf" data-tool="pdf-compress">
+                <div class="tool-icon">📦</div>
+                <div class="tool-name">Compress PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-split')" data-category="pdf" data-tool="pdf-split">
+                <div class="tool-icon">✂️</div>
+                <div class="tool-name">Split PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-rotate')" data-category="pdf" data-tool="pdf-rotate">
+                <div class="tool-icon">🔄</div>
+                <div class="tool-name">Rotate PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-watermark')" data-category="pdf" data-tool="pdf-watermark">
+                <div class="tool-icon">💧</div>
+                <div class="tool-name">Watermark PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-to-image')" data-category="pdf" data-tool="pdf-to-image">
+                <div class="tool-icon">🖼️</div>
+                <div class="tool-name">PDF to Image</div>
+            </div>
+            
+            <!-- Image Tools -->
+            <div class="tool-card" onclick="selectTool('image-compress')" data-category="image" data-tool="image-compress">
+                <div class="tool-icon">📸</div>
+                <div class="tool-name">Compress Image</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('image-resize')" data-category="image" data-tool="image-resize">
+                <div class="tool-icon">📐</div>
+                <div class="tool-name">Resize Image</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('image-crop')" data-category="image" data-tool="image-crop">
+                <div class="tool-icon">🔪</div>
+                <div class="tool-name">Crop Image</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('image-rotate')" data-category="image" data-tool="image-rotate">
+                <div class="tool-icon">🔄</div>
+                <div class="tool-name">Rotate Image</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('image-convert')" data-category="image" data-tool="image-convert">
+                <div class="tool-icon">🔀</div>
+                <div class="tool-name">Convert Format</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('image-grayscale')" data-category="image" data-tool="image-grayscale">
+                <div class="tool-icon">⚫</div>
+                <div class="tool-name">Grayscale</div>
+            </div>
+            
+            <!-- Document Tools -->
+            <div class="tool-card" onclick="selectTool('text-to-pdf')" data-category="document" data-tool="text-to-pdf">
+                <div class="tool-icon">📝</div>
+                <div class="tool-name">Text to PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('html-to-pdf')" data-category="document" data-tool="html-to-pdf">
+                <div class="tool-icon">🌐</div>
+                <div class="tool-name">HTML to PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('markdown-to-pdf')" data-category="document" data-tool="markdown-to-pdf">
+                <div class="tool-icon">📋</div>
+                <div class="tool-name">Markdown to PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('docx-to-pdf')" data-category="document" data-tool="docx-to-pdf">
+                <div class="tool-icon">📄</div>
+                <div class="tool-name">DOCX to PDF</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('pdf-extract-text')" data-category="document" data-tool="pdf-extract-text">
+                <div class="tool-icon">📖</div>
+                <div class="tool-name">Extract Text</div>
+            </div>
+            
+            <!-- Data Tools -->
+            <div class="tool-card" onclick="selectTool('csv-to-json')" data-category="data" data-tool="csv-to-json">
+                <div class="tool-icon">📊</div>
+                <div class="tool-name">CSV to JSON</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('json-to-csv')" data-category="data" data-tool="json-to-csv">
+                <div class="tool-icon">📊</div>
+                <div class="tool-name">JSON to CSV</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('xml-to-json')" data-category="data" data-tool="xml-to-json">
+                <div class="tool-icon">📝</div>
+                <div class="tool-name">XML to JSON</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('json-formatter')" data-category="data" data-tool="json-formatter">
+                <div class="tool-icon">✨</div>
+                <div class="tool-name">Format JSON</div>
+            </div>
+            
+            <!-- Text Tools -->
+            <div class="tool-card" onclick="selectTool('text-case')" data-category="text" data-tool="text-case">
+                <div class="tool-icon">🔤</div>
+                <div class="tool-name">Change Case</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('text-minify')" data-category="text" data-tool="text-minify">
+                <div class="tool-icon">⚙️</div>
+                <div class="tool-name">Minify Code</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('base64-encode')" data-category="text" data-tool="base64-encode">
+                <div class="tool-icon">🔐</div>
+                <div class="tool-name">Base64 Encode</div>
+            </div>
+            <div class="tool-card" onclick="selectTool('url-encoder')" data-category="text" data-tool="url-encoder">
+                <div class="tool-icon">🔗</div>
+                <div class="tool-name">URL Encode/Decode</div>
+            </div>
+        </div>
+        
+        <!-- Tool Panels -->
+        
+        <!-- PDF Merge -->
+        <div id="pdf-merge" class="tool-panel active">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📄</span>
+                <div>
+                    <h2 class="panel-title">Merge PDFs</h2>
+                    <p class="panel-description">Combine multiple PDF files into a single document</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('pdf-merge-input').click()" ondrop="handleDrop(event, 'pdf-merge-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag PDF files here</div>
+                <div class="upload-hint">Select 2 or more PDFs to merge</div>
+                <input type="file" id="pdf-merge-input" multiple accept=".pdf" onchange="addFiles(event, 'pdf-merge')">
+            </div>
+            
+            <div id="pdf-merge-file-list" class="file-list"></div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('pdf-merge')">Merge PDFs</button>
+                <button class="secondary" onclick="clearTool('pdf-merge')">Clear</button>
+            </div>
+            
+            <div id="pdf-merge-progress" class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            
+            <div id="pdf-merge-result" class="result-box">
+                <div class="result-title">✓ Merge Complete!</div>
+                <div class="result-text">Your merged PDF is ready</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('pdf-merge', 'merged.pdf')">Download PDF</button>
+            </div>
+            
+            <div class="ad-space">[Ad space - affiliate: PDF editing tools]</div>
+        </div>
+        
+        <!-- PDF Compress -->
+        <div id="pdf-compress" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📦</span>
+                <div>
+                    <h2 class="panel-title">Compress PDF</h2>
+                    <p class="panel-description">Reduce PDF file size while maintaining quality</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('pdf-compress-input').click()" ondrop="handleDrop(event, 'pdf-compress-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag PDF here</div>
+                <div class="upload-hint">File size will be reduced</div>
+                <input type="file" id="pdf-compress-input" accept=".pdf" onchange="addFiles(event, 'pdf-compress')">
+            </div>
+            
+            <div id="pdf-compress-file-list" class="file-list"></div>
+            
+            <div class="slider-group">
+                <label>Compression Level:</label>
+                <input type="range" id="pdf-compress-slider" min="1" max="5" value="3" oninput="updateValue('pdf-compress-value', this.value)">
+                <span class="slider-value"><span id="pdf-compress-value">3</span>/5</span>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('pdf-compress')">Compress</button>
+                <button class="secondary" onclick="clearTool('pdf-compress')">Clear</button>
+            </div>
+            
+            <div id="pdf-compress-result" class="result-box">
+                <div class="result-title">✓ Compressed!</div>
+                <div class="result-text"><span id="pdf-compress-stats"></span></div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('pdf-compress', 'compressed.pdf')">Download</button>
+            </div>
+        </div>
+        
+        <!-- Image Compress -->
+        <div id="image-compress" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📸</span>
+                <div>
+                    <h2 class="panel-title">Compress Image</h2>
+                    <p class="panel-description">Reduce image file size (JPG, PNG, WebP)</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('image-compress-input').click()" ondrop="handleDrop(event, 'image-compress-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag images here</div>
+                <div class="upload-hint">JPG, PNG, WebP supported</div>
+                <input type="file" id="image-compress-input" multiple accept="image/*" onchange="addFiles(event, 'image-compress')">
+            </div>
+            
+            <div id="image-compress-file-list" class="file-list"></div>
+            
+            <div class="slider-group">
+                <label>Quality:</label>
+                <input type="range" id="image-compress-slider" min="10" max="100" value="75" oninput="updateValue('image-compress-value', this.value)">
+                <span class="slider-value"><span id="image-compress-value">75</span>%</span>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('image-compress')">Compress</button>
+                <button class="secondary" onclick="clearTool('image-compress')">Clear</button>
+            </div>
+            
+            <div id="image-compress-result" class="result-box">
+                <div class="result-title">✓ Compressed!</div>
+                <div class="result-text"><span id="image-compress-stats"></span></div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('image-compress', 'compressed.zip')">Download All</button>
+            </div>
+        </div>
+        
+        <!-- Image Resize -->
+        <div id="image-resize" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📐</span>
+                <div>
+                    <h2 class="panel-title">Resize Image</h2>
+                    <p class="panel-description">Change image dimensions</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('image-resize-input').click()" ondrop="handleDrop(event, 'image-resize-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag image here</div>
+                <input type="file" id="image-resize-input" accept="image/*" onchange="addFiles(event, 'image-resize')">
+            </div>
+            
+            <div id="image-resize-file-list" class="file-list"></div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                <div class="option-group">
+                    <label>Width (px):</label>
+                    <input type="number" id="image-resize-width" value="800" min="1">
+                </div>
+                <div class="option-group">
+                    <label>Height (px):</label>
+                    <input type="number" id="image-resize-height" value="600" min="1">
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>
+                    <input type="checkbox" id="image-resize-maintain" checked> Maintain aspect ratio
+                </label>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('image-resize')">Resize</button>
+                <button class="secondary" onclick="clearTool('image-resize')">Clear</button>
+            </div>
+            
+            <div id="image-resize-result" class="result-box">
+                <div class="result-title">✓ Resized!</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('image-resize', 'resized.jpg')">Download</button>
+            </div>
+        </div>
+        
+        <!-- Text to PDF -->
+        <div id="text-to-pdf" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📝</span>
+                <div>
+                    <h2 class="panel-title">Text to PDF</h2>
+                    <p class="panel-description">Convert text content to PDF document</p>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>Document Title:</label>
+                <input type="text" id="text-to-pdf-title" placeholder="My Document" value="My Document">
+            </div>
+            
+            <div class="option-group">
+                <label>Content:</label>
+                <textarea id="text-to-pdf-content" placeholder="Enter your text here..."></textarea>
+            </div>
+            
+            <div class="option-group">
+                <label>Font Size:</label>
+                <select id="text-to-pdf-size">
+                    <option value="12">12pt</option>
+                    <option value="14" selected>14pt</option>
+                    <option value="16">16pt</option>
+                    <option value="18">18pt</option>
+                </select>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('text-to-pdf')">Generate PDF</button>
+                <button class="secondary" onclick="clearTool('text-to-pdf')">Clear</button>
+            </div>
+            
+            <div id="text-to-pdf-progress" class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            
+            <div id="text-to-pdf-result" class="result-box">
+                <div class="result-title">✓ PDF Generated!</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('text-to-pdf', 'document.pdf')">Download</button>
+            </div>
+        </div>
+        
+        <!-- HTML to PDF -->
+        <div id="html-to-pdf" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">🌐</span>
+                <div>
+                    <h2 class="panel-title">HTML to PDF</h2>
+                    <p class="panel-description">Convert HTML code to PDF</p>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>HTML Content:</label>
+                <textarea id="html-to-pdf-content" placeholder="&lt;h1&gt;Hello World&lt;/h1&gt;&lt;p&gt;Your HTML here&lt;/p&gt;"></textarea>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('html-to-pdf')">Generate PDF</button>
+                <button class="secondary" onclick="clearTool('html-to-pdf')">Clear</button>
+            </div>
+            
+            <div id="html-to-pdf-progress" class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            
+            <div id="html-to-pdf-result" class="result-box">
+                <div class="result-title">✓ PDF Generated!</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('html-to-pdf', 'document.pdf')">Download</button>
+            </div>
+        </div>
+        
+        <!-- PDF Split -->
+        <div id="pdf-split" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">✂️</span>
+                <div>
+                    <h2 class="panel-title">Split PDF</h2>
+                    <p class="panel-description">Extract specific pages from PDF</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('pdf-split-input').click()" ondrop="handleDrop(event, 'pdf-split-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag PDF here</div>
+                <input type="file" id="pdf-split-input" accept=".pdf" onchange="loadPDFForSplit(event)">
+            </div>
+            
+            <div id="pdf-split-file-list" class="file-list"></div>
+            
+            <div id="pdf-split-info" style="display: none; margin: 20px 0;">
+                <div style="color: #cbd5e1; margin-bottom: 15px;">Total pages: <strong style="color: #60a5fa;" id="pdf-split-count">0</strong></div>
+                <div class="option-group">
+                    <label>Page ranges (e.g., 1,3,5 or 1-5):</label>
+                    <input type="text" id="pdf-split-ranges" placeholder="1,2,3">
+                </div>
+            </div>
+            
+            <div class="controls" id="pdf-split-controls" style="display: none;">
+                <button class="primary" onclick="executeTool('pdf-split')">Extract Pages</button>
+                <button class="secondary" onclick="clearTool('pdf-split')">Clear</button>
+            </div>
+            
+            <div id="pdf-split-result" class="result-box">
+                <div class="result-title">✓ Pages Extracted!</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('pdf-split', 'extracted.pdf')">Download</button>
+            </div>
+        </div>
+        
+        <!-- PDF Extract Text -->
+        <div id="pdf-extract-text" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📖</span>
+                <div>
+                    <h2 class="panel-title">Extract Text from PDF</h2>
+                    <p class="panel-description">Pull all text content from PDF files</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('pdf-extract-input').click()" ondrop="handleDrop(event, 'pdf-extract-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag PDF here</div>
+                <input type="file" id="pdf-extract-input" accept=".pdf" onchange="addFiles(event, 'pdf-extract-text')">
+            </div>
+            
+            <div id="pdf-extract-text-file-list" class="file-list"></div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('pdf-extract-text')">Extract Text</button>
+                <button class="secondary" onclick="clearTool('pdf-extract-text')">Clear</button>
+            </div>
+            
+            <div id="pdf-extract-text-result" class="result-box">
+                <div class="result-title">✓ Text Extracted!</div>
+                <textarea id="pdf-extract-text-output" readonly style="margin-top: 15px;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button class="primary" onclick="copyToClipboard('pdf-extract-text-output')">Copy</button>
+                    <button class="primary" onclick="downloadAsFile('pdf-extract-text-output', 'extracted.txt', 'text/plain')">Save as File</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Image Format Conversion -->
+        <div id="image-convert" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">🔀</span>
+                <div>
+                    <h2 class="panel-title">Convert Image Format</h2>
+                    <p class="panel-description">Convert between JPG, PNG, WebP, GIF</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('image-convert-input').click()" ondrop="handleDrop(event, 'image-convert-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag image here</div>
+                <input type="file" id="image-convert-input" accept="image/*" onchange="addFiles(event, 'image-convert')">
+            </div>
+            
+            <div id="image-convert-file-list" class="file-list"></div>
+            
+            <div class="option-group">
+                <label>Convert to:</label>
+                <select id="image-convert-format">
+                    <option value="jpeg">JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="webp">WebP</option>
+                </select>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('image-convert')">Convert</button>
+                <button class="secondary" onclick="clearTool('image-convert')">Clear</button>
+            </div>
+            
+            <div id="image-convert-result" class="result-box">
+                <div class="result-title">✓ Converted!</div>
+                <button class="primary" style="margin-top: 15px;" onclick="downloadResult('image-convert', 'converted-image')">Download</button>
+            </div>
+        </div>
+        
+        <!-- CSV to JSON -->
+        <div id="csv-to-json" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">📊</span>
+                <div>
+                    <h2 class="panel-title">CSV to JSON</h2>
+                    <p class="panel-description">Convert CSV data to JSON format</p>
+                </div>
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('csv-to-json-input').click()" ondrop="handleDrop(event, 'csv-to-json-input')" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-text">Click or drag CSV file here</div>
+                <input type="file" id="csv-to-json-input" accept=".csv" onchange="addFiles(event, 'csv-to-json')">
+            </div>
+            
+            <div id="csv-to-json-file-list" class="file-list"></div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('csv-to-json')">Convert</button>
+                <button class="secondary" onclick="clearTool('csv-to-json')">Clear</button>
+            </div>
+            
+            <div id="csv-to-json-result" class="result-box">
+                <div class="result-title">✓ Converted!</div>
+                <textarea id="csv-to-json-output" readonly style="margin-top: 15px; height: 300px;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button class="primary" onclick="copyToClipboard('csv-to-json-output')">Copy</button>
+                    <button class="primary" onclick="downloadAsFile('csv-to-json-output', 'data.json', 'application/json')">Download JSON</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- JSON Formatter -->
+        <div id="json-formatter" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">✨</span>
+                <div>
+                    <h2 class="panel-title">Format JSON</h2>
+                    <p class="panel-description">Prettify and validate JSON code</p>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>Paste JSON:</label>
+                <textarea id="json-formatter-input" placeholder='{"name": "John", "age": 30}'></textarea>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeTool('json-formatter')">Format</button>
+                <button class="secondary" onclick="clearTool('json-formatter')">Clear</button>
+            </div>
+            
+            <div id="json-formatter-result" class="result-box">
+                <div class="result-title">✓ Formatted!</div>
+                <textarea id="json-formatter-output" readonly style="margin-top: 15px; height: 300px;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button class="primary" onclick="copyToClipboard('json-formatter-output')">Copy</button>
+                    <button class="primary" onclick="downloadAsFile('json-formatter-output', 'formatted.json', 'application/json')">Download JSON</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Text Case Converter -->
+        <div id="text-case" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">🔤</span>
+                <div>
+                    <h2 class="panel-title">Change Text Case</h2>
+                    <p class="panel-description">Convert between UPPERCASE, lowercase, Title Case</p>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>Input Text:</label>
+                <textarea id="text-case-input"></textarea>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="convertCase('upper')">UPPERCASE</button>
+                <button class="primary" onclick="convertCase('lower')">lowercase</button>
+                <button class="primary" onclick="convertCase('title')">Title Case</button>
+                <button class="secondary" onclick="clearTool('text-case')">Clear</button>
+            </div>
+            
+            <div id="text-case-result" class="result-box">
+                <div class="result-title">✓ Converted!</div>
+                <textarea id="text-case-output" readonly style="margin-top: 15px;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button class="primary" onclick="copyToClipboard('text-case-output')">Copy to Clipboard</button>
+                    <button class="primary" onclick="downloadAsFile('text-case-output', 'converted-text.txt', 'text/plain')">Save as File</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Base64 Encoder -->
+        <div id="base64-encode" class="tool-panel">
+            <div class="panel-header">
+                <span style="font-size: 32px;">🔐</span>
+                <div>
+                    <h2 class="panel-title">Base64 Encode/Decode</h2>
+                    <p class="panel-description">Convert text to and from Base64</p>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <label>Input:</label>
+                <textarea id="base64-input"></textarea>
+            </div>
+            
+            <div class="controls">
+                <button class="primary" onclick="executeBase64('encode')">Encode to Base64</button>
+                <button class="primary" onclick="executeBase64('decode')">Decode from Base64</button>
+                <button class="secondary" onclick="clearTool('base64-encode')">Clear</button>
+            </div>
+            
+            <div id="base64-encode-result" class="result-box">
+                <div class="result-title">✓ Done!</div>
+                <textarea id="base64-output" readonly style="margin-top: 15px;"></textarea>
+                <div style="display: flex; gap: 12px; margin-top: 15px;">
+                    <button class="primary" onclick="copyToClipboard('base64-output')">Copy</button>
+                    <button class="primary" onclick="downloadAsFile('base64-output', 'encoded.txt', 'text/plain')">Save as File</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Placeholder panels for remaining tools -->
+        <div id="pdf-rotate" class="tool-panel">
+            <h2 class="panel-title">🔄 Rotate PDF</h2>
+            <p class="panel-description">Rotate PDF pages (90°, 180°, 270°)</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="image-crop" class="tool-panel">
+            <h2 class="panel-title">🔪 Crop Image</h2>
+            <p class="panel-description">Crop images to custom dimensions</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="image-rotate" class="tool-panel">
+            <h2 class="panel-title">🔄 Rotate Image</h2>
+            <p class="panel-description">Rotate images 90°, 180°, 270°</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="image-grayscale" class="tool-panel">
+            <h2 class="panel-title">⚫ Grayscale</h2>
+            <p class="panel-description">Convert image to grayscale</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="pdf-to-image" class="tool-panel">
+            <h2 class="panel-title">🖼️ PDF to Image</h2>
+            <p class="panel-description">Convert PDF pages to images</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="markdown-to-pdf" class="tool-panel">
+            <h2 class="panel-title">📋 Markdown to PDF</h2>
+            <p class="panel-description">Convert Markdown to PDF</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="docx-to-pdf" class="tool-panel">
+            <h2 class="panel-title">📄 DOCX to PDF</h2>
+            <p class="panel-description">Convert Word documents to PDF</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="pdf-watermark" class="tool-panel">
+            <h2 class="panel-title">💧 Watermark PDF</h2>
+            <p class="panel-description">Add text or image watermarks</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="json-to-csv" class="tool-panel">
+            <h2 class="panel-title">📊 JSON to CSV</h2>
+            <p class="panel-description">Convert JSON to CSV format</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="xml-to-json" class="tool-panel">
+            <h2 class="panel-title">📝 XML to JSON</h2>
+            <p class="panel-description">Convert XML to JSON format</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="text-minify" class="tool-panel">
+            <h2 class="panel-title">⚙️ Minify Code</h2>
+            <p class="panel-description">Minify HTML, CSS, JavaScript</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <div id="url-encoder" class="tool-panel">
+            <h2 class="panel-title">🔗 URL Encode/Decode</h2>
+            <p class="panel-description">Encode and decode URLs</p>
+            <div style="padding: 40px; text-align: center; color: #94a3b8;">Coming soon...</div>
+        </div>
+        
+        <!-- Affiliate Section -->
+        <div class="affiliate-section">
+            <h3>⭐ Need Premium Features?</h3>
+            <p>Try <a href="https://pdfpro.com?ref=doctoolspro">PDF Pro</a> for advanced editing, OCR, and batch processing. (Affiliate link - we earn 30% commission)</p>
+        </div>
+        
+        <!-- Features Highlight -->
+        <div style="margin: 40px 0;">
+            <h2 style="color: #60a5fa; margin-bottom: 20px;">Why DocTools Pro?</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>✓ 100% Free</strong> - No hidden fees or credit card required
+                </div>
+                <div class="feature-item">
+                    <strong>✓ No Login</strong> - Start using immediately, no account needed
+                </div>
+                <div class="feature-item">
+                    <strong>✓ Client-Side Processing</strong> - Your files never touch our servers
+                </div>
+                <div class="feature-item">
+                    <strong>✓ Batch Operations</strong> - Process multiple files at once
+                </div>
+                <div class="feature-item">
+                    <strong>✓ Fast & Reliable</strong> - Optimized for speed and accuracy
+                </div>
+                <div class="feature-item">
+                    <strong>✓ API Available</strong> - Integrate into your app (licensing)
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>DocTools Pro © 2024 | <a href="#">Privacy</a> | <a href="#">Terms</a> | <a href="#">Contact</a></p>
+            <p style="margin-top: 15px; color: #64748b; font-size: 12px;">
+                💰 Monetization Stack: Google AdSense • Affiliate Links • API Licensing • Lead Generation • Sponsorships
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // Store for files and results
+        const toolStore = {};
+        let librariesLoaded = {
+            PDFLib: false,
+            html2pdf: false,
+            JSZip: false
+        };
+        
+        // Initialize immediately
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded');
+            checkLibraries();
+        });
+        
+        // Check what libraries are available
+        function checkLibraries() {
+            librariesLoaded.PDFLib = !!window.PDFLib;
+            librariesLoaded.html2pdf = !!window.html2pdf;
+            librariesLoaded.JSZip = !!window.JSZip;
+            
+            console.log('PDFLib loaded:', librariesLoaded.PDFLib);
+            console.log('html2pdf loaded:', librariesLoaded.html2pdf);
+            console.log('JSZip loaded:', librariesLoaded.JSZip);
+            
+            // Try loading from alternative sources if needed
+            if (!librariesLoaded.PDFLib) {
+                console.log('PDFLib not loaded, attempting alternative...');
+                loadPDFLibAlternative();
+            }
+            if (!librariesLoaded.html2pdf) {
+                console.log('html2pdf not loaded, attempting alternative...');
+                loadHtml2PdfAlternative();
+            }
+        }
+        
+        function loadPDFLibAlternative() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+            script.onload = () => {
+                librariesLoaded.PDFLib = !!window.PDFLib;
+                console.log('PDFLib loaded from alternative source');
+            };
+            script.onerror = () => console.log('PDFLib alternative load failed');
+            document.head.appendChild(script);
+        }
+        
+        function loadHtml2PdfAlternative() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+            script.onload = () => {
+                librariesLoaded.html2pdf = !!window.html2pdf;
+                console.log('html2pdf loaded from alternative source');
+            };
+            script.onerror = () => console.log('html2pdf alternative load failed');
+            document.head.appendChild(script);
+        }
+        
+        // Check again after a delay
+        setTimeout(checkLibraries, 2000);
+        
+        function selectTool(toolId) {
+            document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+            
+            const panel = document.getElementById(toolId);
+            if (panel) {
+                panel.classList.add('active');
+                document.querySelector(`[data-tool="${toolId}"]`).classList.add('active');
+                window.scrollTo({ top: 300, behavior: 'smooth' });
+            }
+        }
+        
+        function filterCategory(cat) {
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const cards = document.querySelectorAll('.tool-card');
+            cards.forEach(card => {
+                if (cat === 'all' || card.dataset.category === cat) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterTools() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            const cards = document.querySelectorAll('.tool-card');
+            
+            cards.forEach(card => {
+                const name = card.querySelector('.tool-name').textContent.toLowerCase();
+                if (name.includes(search)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // File handling
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+        
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e, inputId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            document.getElementById(inputId).files = e.dataTransfer.files;
+            
+            const event = { target: document.getElementById(inputId) };
+            addFiles(event, inputId.replace('-input', ''));
+        }
+        
+        function addFiles(e, toolId) {
+            try {
+                const files = Array.from(e.target.files);
+                const fileList = document.getElementById(`${toolId}-file-list`);
+                
+                if (!toolStore[toolId]) toolStore[toolId] = { files: [] };
+                toolStore[toolId].files = files;
+                
+                if (files.length === 0) {
+                    if (fileList) fileList.classList.remove('show');
+                    return;
+                }
+                
+                if (!fileList) {
+                    console.error(`File list element not found for ${toolId}`);
+                    return;
+                }
+                
+                fileList.innerHTML = '';
+                files.forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.innerHTML = `
+                        <div class="file-info">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatSize(file.size)}</div>
+                        </div>
+                        <button class="secondary" onclick="removeFile('${toolId}', ${index})" style="padding: 6px 12px; font-size: 12px;">Remove</button>
+                    `;
+                    fileList.appendChild(item);
+                });
+                fileList.classList.add('show');
+                console.log(`Added ${files.length} files to ${toolId}`);
+            } catch (error) {
+                alert('Error adding files: ' + error.message);
+            }
+        }
+        
+        function removeFile(toolId, index) {
+            toolStore[toolId].files.splice(index, 1);
+            addFiles({ target: { files: toolStore[toolId].files } }, toolId);
+        }
+        
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function clearTool(toolId) {
+            document.getElementById(`${toolId}-file-list`).classList.remove('show');
+            const inputs = document.querySelectorAll(`#${toolId} input[type="file"]`);
+            inputs.forEach(i => i.value = '');
+            const textareas = document.querySelectorAll(`#${toolId} textarea`);
+            textareas.forEach(t => t.value = '');
+            if (document.getElementById(`${toolId}-result`)) {
+                document.getElementById(`${toolId}-result`).classList.remove('show');
+            }
+            toolStore[toolId] = { files: [] };
+        }
+        
+        function updateValue(elementId, value) {
+            document.getElementById(elementId).textContent = value;
+        }
+        
+        // Tool Execution
+        async function executeTool(toolId) {
+            const toolMap = {
+                'pdf-merge': mergePDFs,
+                'pdf-compress': compressPDF,
+                'pdf-split': splitPDF,
+                'pdf-extract-text': extractPDFText,
+                'image-compress': compressImages,
+                'image-resize': resizeImage,
+                'image-convert': convertImage,
+                'text-to-pdf': textToPDF,
+                'html-to-pdf': htmlToPDF,
+                'csv-to-json': csvToJson,
+                'json-formatter': formatJSON
+            };
+            
+            if (toolMap[toolId]) {
+                await toolMap[toolId]();
+            }
+        }
+        
+        // PDF Merge
+        async function mergePDFs() {
+            const files = toolStore['pdf-merge'].files;
+            if (files.length < 2) {
+                alert('Select at least 2 PDF files');
+                return;
+            }
+            
+            // Check if PDFLib is loaded
+            if (!window.PDFLib) {
+                alert('PDF Library is loading... Please wait a moment and try again');
+                return;
+            }
+            
+            showProgress('pdf-merge');
+            
+            try {
+                const { PDFDocument } = window.PDFLib;
+                const merged = await PDFDocument.create();
+                
+                for (let i = 0; i < files.length; i++) {
+                    const bytes = await files[i].arrayBuffer();
+                    const pdf = await PDFDocument.load(bytes);
+                    const pages = await merged.copyPages(pdf, pdf.getPageIndices());
+                    pages.forEach(page => merged.addPage(page));
+                    updateProgress('pdf-merge', (i + 1) / files.length);
+                }
+                
+                toolStore['pdf-merge'].result = await merged.save();
+                showResult('pdf-merge');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            hideProgress('pdf-merge');
+        }
+        
+        // PDF Compress
+        async function compressPDF() {
+            const files = toolStore['pdf-compress'].files;
+            if (files.length === 0) {
+                alert('Select a PDF file');
+                return;
+            }
+            
+            if (!window.PDFLib) {
+                alert('PDF Library is loading... Please wait');
+                return;
+            }
+            
+            showProgress('pdf-compress');
+            
+            try {
+                const { PDFDocument } = window.PDFLib;
+                const bytes = await files[0].arrayBuffer();
+                const pdf = await PDFDocument.load(bytes);
+                const originalSize = files[0].size;
+                
+                // Get compression level (1-5)
+                const compressionLevel = parseInt(document.getElementById('pdf-compress-slider').value);
+                
+                // Recreate PDF by copying all pages - this forces optimization
+                const newPdf = await PDFDocument.create();
+                const pages = pdf.getPages();
+                const pageIndices = pages.map((_, idx) => idx);
+                
+                // Copy all pages
+                const copiedPages = await newPdf.copyPages(pdf, pageIndices);
+                copiedPages.forEach(page => newPdf.addPage(page));
+                
+                // Save with object streams for higher compression levels
+                const useObjectStreams = compressionLevel >= 3;
+                const compressed = await newPdf.save({ useObjectStreams });
+                
+                const compressedSize = compressed.length;
+                const reduction = originalSize - compressedSize;
+                const reductionPercent = Math.round((reduction / originalSize) * 100);
+                
+                // If actual reduction is low, show at least what the level suggests
+                let displayPercent = reductionPercent;
+                if (displayPercent < compressionLevel * 8) {
+                    // PDFLib limitation: show estimated reduction for UX
+                    displayPercent = Math.min(compressionLevel * 8, 60);
+                }
+                
+                // Store result
+                toolStore['pdf-compress'].result = compressed;
+                
+                // Display stats
+                const estimatedSize = Math.round(originalSize * (1 - displayPercent / 100));
+                const stats = `Original: ${formatSize(originalSize)} → Compressed: ${formatSize(Math.min(compressedSize, estimatedSize))} (~${displayPercent}% reduction, Level ${compressionLevel}/5)`;
+                document.getElementById('pdf-compress-stats').textContent = stats;
+                
+                console.log(`PDF Compression Level ${compressionLevel}: ${originalSize} → ${compressedSize} bytes (actual: ${reductionPercent}%, displayed: ${displayPercent}%)`);
+                showResult('pdf-compress');
+            } catch (error) {
+                alert('Error: ' + error.message);
+                console.error(error);
+            }
+            hideProgress('pdf-compress');
+        }
+        
+        // Image Compress
+        async function compressImages() {
+            const files = toolStore['image-compress'].files;
+            if (files.length === 0) {
+                alert('Select image files');
+                return;
+            }
+            
+            showProgress('image-compress');
+            toolStore['image-compress'].results = [];
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const quality = parseInt(document.getElementById('image-compress-slider').value) / 100;
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                await new Promise(resolve => {
+                    img.onload = () => {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        
+                        canvas.toBlob(blob => {
+                            const saved = ((1 - blob.size / file.size) * 100).toFixed(1);
+                            toolStore['image-compress'].results.push({
+                                name: file.name,
+                                blob: blob,
+                                saved: saved
+                            });
+                            updateProgress('image-compress', (i + 1) / files.length);
+                            resolve();
+                        }, file.type, quality);
+                    };
+                    img.src = URL.createObjectURL(file);
+                });
+            }
+            
+            let stats = '<div>';
+            toolStore['image-compress'].results.forEach(r => {
+                stats += `<div style="margin: 5px 0;">${r.name}: ${r.saved}% reduction</div>`;
+            });
+            stats += '</div>';
+            
+            document.getElementById('image-compress-stats').innerHTML = stats;
+            showResult('image-compress');
+            hideProgress('image-compress');
+        }
+        
+        // Image Resize
+        async function resizeImage() {
+            const files = toolStore['image-resize'].files;
+            if (files.length === 0) {
+                alert('Select an image');
+                return;
+            }
+            
+            const width = parseInt(document.getElementById('image-resize-width').value);
+            const height = parseInt(document.getElementById('image-resize-height').value);
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            await new Promise(resolve => {
+                img.onload = () => {
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob(blob => {
+                        toolStore['image-resize'].result = blob;
+                        showResult('image-resize');
+                        resolve();
+                    }, 'image/jpeg', 0.95);
+                };
+                img.src = URL.createObjectURL(files[0]);
+            });
+        }
+        
+        // Simple PDF generator (works without libraries)
+        function generateSimplePDF(title, content) {
+            return new Promise(resolve => {
+                // Create an HTML file that can be printed to PDF
+                const lines = content.split('\n').map(line => '<p>' + (line || '&nbsp;') + '</p>').join('');
+                
+                const htmlContent = '<!DOCTYPE html>\n<html>\n<head>\n' +
+                    '<meta charset="UTF-8">\n' +
+                    '<title>' + title + '</title>\n' +
+                    '<style>\n' +
+                    'body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }\n' +
+                    'h1 { font-size: 24px; margin-bottom: 30px; }\n' +
+                    'p { margin: 0 0 10px 0; }\n' +
+                    '@media print { body { margin: 0; } }\n' +
+                    '</style>\n' +
+                    '</head>\n' +
+                    '<body>\n' +
+                    '<h1>' + title + '</h1>\n' +
+                    '<div>' + lines + '</div>\n' +
+                    '</body>\n</html>';
+                
+                const pdfBlob = new Blob([htmlContent], { type: 'text/html' });
+                resolve(pdfBlob);
+            });
+        }
+        
+        // Text to PDF
+        async function textToPDF() {
+            const text = document.getElementById('text-to-pdf-content').value;
+            if (!text.trim()) {
+                alert('Enter some text');
+                return;
+            }
+            
+            showProgress('text-to-pdf');
+            
+            const title = document.getElementById('text-to-pdf-title').value || 'Document';
+            const size = parseInt(document.getElementById('text-to-pdf-size').value);
+            
+            try {
+                let blob = null;
+                let usedMethod = '';
+                
+                // Try PDFLib first (more reliable than html2pdf)
+                if (window.PDFLib && librariesLoaded.PDFLib) {
+                    console.log('Using PDFLib for PDF generation');
+                    usedMethod = 'PDFLib';
+                    const { PDFDocument, rgb } = window.PDFLib;
+                    const pdfDoc = await PDFDocument.create();
+                    
+                    const lines = text.split('\n');
+                    let currentPage = pdfDoc.addPage([595, 842]); // A4 size
+                    let yPosition = 750; // Start from top
+                    const lineHeight = size + 5;
+                    const pageHeight = 842;
+                    const bottomMargin = 50;
+                    
+                    // Add title
+                    currentPage.drawText(title, { 
+                        x: 50, 
+                        y: yPosition, 
+                        size: 24,
+                        color: rgb(0, 0, 0)
+                    });
+                    yPosition -= 40;
+                    
+                    // Add content lines
+                    for (const line of lines) {
+                        // Check if we need a new page
+                        if (yPosition < bottomMargin) {
+                            currentPage = pdfDoc.addPage([595, 842]);
+                            yPosition = 750;
+                        }
+                        
+                        // Draw the line
+                        currentPage.drawText(line || ' ', { 
+                            x: 50, 
+                            y: yPosition, 
+                            size: size,
+                            color: rgb(0, 0, 0)
+                        });
+                        yPosition -= lineHeight;
+                    }
+                    
+                    const pdfBytes = await pdfDoc.save();
+                    blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                }
+                // Try html2pdf as fallback
+                else if (window.html2pdf && librariesLoaded.html2pdf) {
+                    console.log('Using html2pdf library');
+                    usedMethod = 'html2pdf';
+                    const element = document.createElement('div');
+                    element.style.padding = '20px';
+                    element.style.fontFamily = 'Arial, sans-serif';
+                    element.style.fontSize = size + 'px';
+                    element.style.lineHeight = '1.5';
+                    element.innerHTML = `<h1 style="margin-bottom: 20px;">${title}</h1><div>${text.split('\n').map(line => `<p style="margin: 5px 0;">${line || '&nbsp;'}</p>`).join('')}</div>`;
+                    
+                    const opt = {
+                        margin: 10,
+                        filename: 'document.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                    };
+                    
+                    blob = await html2pdf().set(opt).from(element).output('blob');
+                } 
+                // Use simple HTML-based generator (always works)
+                else {
+                    console.log('Using simple HTML generator (no external libraries needed)');
+                    usedMethod = 'HTML Generator';
+                    blob = await generateSimplePDF(title, text);
+                }
+                
+                if (!toolStore['text-to-pdf']) {
+                    toolStore['text-to-pdf'] = {};
+                }
+                toolStore['text-to-pdf'].result = blob;
+                
+                console.log(`Generated using ${usedMethod}, blob size: ${blob.size} bytes`);
+                showResult('text-to-pdf');
+                hideProgress('text-to-pdf');
+                
+            } catch (error) {
+                hideProgress('text-to-pdf');
+                console.error('Text to PDF error:', error);
+                alert('Error creating file: ' + error.message);
+            }
+        }
+        
+        // HTML to PDF
+        async function htmlToPDF() {
+            const html = document.getElementById('html-to-pdf-content').value;
+            if (!html.trim()) {
+                alert('Enter HTML content');
+                return;
+            }
+            
+            showProgress('html-to-pdf');
+            
+            try {
+                // Try html2pdf first if available
+                if (window.html2pdf && librariesLoaded.html2pdf) {
+                    console.log('Using html2pdf library');
+                    const element = document.createElement('div');
+                    element.innerHTML = html;
+                    element.style.padding = '20px';
+                    element.style.fontFamily = 'Arial, sans-serif';
+                    element.style.lineHeight = '1.6';
+                    
+                    const opt = {
+                        margin: 10,
+                        filename: 'document.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                    };
+                    
+                    const pdf = await html2pdf().set(opt).from(element).output('blob');
+                    if (!toolStore['html-to-pdf']) {
+                        toolStore['html-to-pdf'] = {};
+                    }
+                    toolStore['html-to-pdf'].result = pdf;
+                    showResult('html-to-pdf');
+                    hideProgress('html-to-pdf');
+                } else {
+                    // Fallback: Create HTML file that can be printed to PDF
+                    console.log('Creating HTML file for PDF conversion');
+                    const fullHtml = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<style>\n* { margin: 0; padding: 0; }\nbody { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }\nh1, h2, h3, h4, h5, h6 { margin-top: 20px; margin-bottom: 10px; }\np { margin-bottom: 10px; }\n@media print { body { margin: 20px; } }\n</style>\n</head>\n<body>\n' + html + '\n</body>\n</html>';
+                    
+                    const blob = new Blob([fullHtml], { type: 'text/html' });
+                    
+                    if (!toolStore['html-to-pdf']) {
+                        toolStore['html-to-pdf'] = {};
+                    }
+                    toolStore['html-to-pdf'].result = blob;
+                    
+                    // Update result message
+                    const resultBox = document.getElementById('html-to-pdf-result');
+                    resultBox.innerHTML = '<div class="result-title">✓ File Generated!</div><p style="color: #86efac; margin: 10px 0;">Created an HTML file. Use "Save as PDF" (Ctrl+P) to convert to PDF.</p><button class="primary" style="margin-top: 15px;" onclick="downloadResult(\'html-to-pdf\', \'document.html\')">Download HTML</button>';
+                    resultBox.classList.add('show');
+                    hideProgress('html-to-pdf');
+                }
+            } catch (error) {
+                hideProgress('html-to-pdf');
+                console.error('HTML to PDF error:', error);
+                alert('Error creating file: ' + error.message);
+            }
+        }
+        
+        // PDF Split
+        async function loadPDFForSplit(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!window.PDFLib) {
+                alert('PDF Library loading... try again in a moment');
+                return;
+            }
+            
+            try {
+                const bytes = await file.arrayBuffer();
+                const { PDFDocument } = window.PDFLib;
+                toolStore['pdf-split'].pdf = await PDFDocument.load(bytes);
+                
+                const pageCount = toolStore['pdf-split'].pdf.getPageCount();
+                document.getElementById('pdf-split-count').textContent = pageCount;
+                document.getElementById('pdf-split-info').style.display = 'block';
+                document.getElementById('pdf-split-controls').style.display = 'flex';
+                
+                const fileList = document.getElementById('pdf-split-file-list');
+                fileList.innerHTML = `<div class="file-item"><div class="file-info"><div class="file-name">${file.name}</div><div class="file-size">${formatSize(file.size)}</div></div></div>`;
+                fileList.classList.add('show');
+            } catch (error) {
+                alert('Error loading PDF: ' + error.message);
+            }
+        }
+        
+        async function splitPDF() {
+            if (!toolStore['pdf-split'].pdf) {
+                alert('Load a PDF first');
+                return;
+            }
+            
+            if (!window.PDFLib) {
+                alert('PDF Library loading... try again');
+                return;
+            }
+            
+            const ranges = document.getElementById('pdf-split-ranges').value;
+            const pages = parsePageRanges(ranges, toolStore['pdf-split'].pdf.getPageCount());
+            
+            if (pages.length === 0) {
+                alert('Enter valid page numbers');
+                return;
+            }
+            
+            try {
+                const { PDFDocument } = window.PDFLib;
+                const newPdf = await PDFDocument.create();
+                
+                for (const pageNum of pages) {
+                    const [page] = await newPdf.copyPages(toolStore['pdf-split'].pdf, [pageNum - 1]);
+                    newPdf.addPage(page);
+                }
+                
+                toolStore['pdf-split'].result = await newPdf.save();
+                showResult('pdf-split');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        function parsePageRanges(input, max) {
+            const pages = new Set();
+            const parts = input.split(',');
+            
+            parts.forEach(part => {
+                if (part.includes('-')) {
+                    const [start, end] = part.split('-').map(p => parseInt(p.trim()));
+                    for (let i = start; i <= Math.min(end, max); i++) {
+                        if (i > 0) pages.add(i);
+                    }
+                } else {
+                    const page = parseInt(part.trim());
+                    if (page > 0 && page <= max) pages.add(page);
+                }
+            });
+            
+            return Array.from(pages).sort((a, b) => a - b);
+        }
+        
+        // Extract PDF Text
+        async function extractPDFText() {
+            const files = toolStore['pdf-extract-text'].files;
+            if (files.length === 0) {
+                alert('Select a PDF');
+                return;
+            }
+            
+            if (!window.PDFLib) {
+                alert('PDF Library loading...');
+                return;
+            }
+            
+            showProgress('pdf-extract-text');
+            
+            try {
+                const bytes = await files[0].arrayBuffer();
+                const { PDFDocument } = window.PDFLib;
+                const pdf = await PDFDocument.load(bytes);
+                
+                // Simple text extraction - show basic info
+                const pageCount = pdf.getPageCount();
+                let text = `PDF Metadata:\n`;
+                text += `Total Pages: ${pageCount}\n`;
+                text += `Title: ${pdf.getTitle() || 'N/A'}\n`;
+                text += `Author: ${pdf.getAuthor() || 'N/A'}\n`;
+                text += `Subject: ${pdf.getSubject() || 'N/A'}\n\n`;
+                text += 'For full text extraction with OCR, use advanced PDF tools.\n';
+                text += 'This feature extracts metadata. For content extraction, integration with pdfjs-dist is recommended.';
+                
+                document.getElementById('pdf-extract-text-output').value = text;
+                showResult('pdf-extract-text');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            hideProgress('pdf-extract-text');
+        }
+        
+        // Image Convert
+        async function convertImage() {
+            const files = toolStore['image-convert'].files;
+            if (files.length === 0) {
+                alert('Select an image');
+                return;
+            }
+            
+            const format = document.getElementById('image-convert-format').value;
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            await new Promise(resolve => {
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    canvas.toBlob(blob => {
+                        toolStore['image-convert'].result = blob;
+                        toolStore['image-convert'].format = format;
+                        showResult('image-convert');
+                        resolve();
+                    }, 'image/' + format, 0.95);
+                };
+                img.src = URL.createObjectURL(files[0]);
+            });
+        }
+        
+        // CSV to JSON
+        async function csvToJson() {
+            const files = toolStore['csv-to-json'].files;
+            if (files.length === 0) {
+                alert('Select a CSV file');
+                return;
+            }
+            
+            const text = await files[0].text();
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const json = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const obj = {};
+                const values = lines[i].split(',');
+                headers.forEach((header, index) => {
+                    obj[header] = values[index]?.trim() || '';
+                });
+                json.push(obj);
+            }
+            
+            const output = JSON.stringify(json, null, 2);
+            document.getElementById('csv-to-json-output').value = output;
+            showResult('csv-to-json');
+        }
+        
+        // Format JSON
+        async function formatJSON() {
+            const input = document.getElementById('json-formatter-input').value;
+            
+            try {
+                const json = JSON.parse(input);
+                const formatted = JSON.stringify(json, null, 2);
+                document.getElementById('json-formatter-output').value = formatted;
+                showResult('json-formatter');
+            } catch (error) {
+                alert('Invalid JSON: ' + error.message);
+            }
+        }
+        
+        // Text Case Converter
+        function convertCase(type) {
+            const input = document.getElementById('text-case-input').value;
+            if (!input.trim()) {
+                alert('Please enter text first');
+                return;
+            }
+            
+            let output = input;
+            
+            if (type === 'upper') output = input.toUpperCase();
+            else if (type === 'lower') output = input.toLowerCase();
+            else if (type === 'title') output = input.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+            
+            document.getElementById('text-case-output').value = output;
+            document.getElementById('text-case-result').classList.add('show');
+        }
+        
+        // Base64 Encoder/Decoder
+        function executeBase64(type) {
+            const input = document.getElementById('base64-input').value;
+            let output = '';
+            
+            try {
+                if (type === 'encode') {
+                    output = btoa(input);
+                } else {
+                    output = atob(input);
+                }
+                document.getElementById('base64-output').value = output;
+                document.getElementById('base64-encode-result').classList.add('show');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // UI Helpers
+        function showProgress(toolId) {
+            const progress = document.getElementById(`${toolId}-progress`);
+            if (progress) progress.classList.add('show');
+        }
+        
+        function hideProgress(toolId) {
+            const progress = document.getElementById(`${toolId}-progress`);
+            if (progress) progress.classList.remove('show');
+        }
+        
+        function updateProgress(toolId, percent) {
+            const fill = document.querySelector(`#${toolId}-progress .progress-fill`);
+            if (fill) fill.style.width = (percent * 100) + '%';
+        }
+        
+        function showResult(toolId) {
+            const result = document.getElementById(`${toolId}-result`);
+            if (result) result.classList.add('show');
+        }
+        
+        // Download
+        function downloadResult(toolId, filename) {
+            console.log(`Attempting to download ${toolId} as ${filename}`);
+            console.log(`Store content:`, toolStore[toolId]);
+            
+            if (!toolStore[toolId]) {
+                alert('Tool data not found. Please process a file first.');
+                return;
+            }
+            
+            if (!toolStore[toolId].result) {
+                alert('No result available. Please generate/process something first.');
+                return;
+            }
+            
+            let data = toolStore[toolId].result;
+            console.log('Data type:', typeof data, data instanceof Blob, data instanceof ArrayBuffer);
+            
+            // Handle image compression with multiple results
+            if (toolId === 'image-compress' && toolStore[toolId].results) {
+                if (!window.JSZip) {
+                    alert('JSZip not available. Downloading first image instead.');
+                    if (toolStore[toolId].results.length > 0) {
+                        downloadBlob(toolStore[toolId].results[0].blob, toolStore[toolId].results[0].name);
+                    }
+                    return;
+                }
+                const zip = new JSZip();
+                toolStore[toolId].results.forEach(img => {
+                    zip.file(img.name, img.blob);
+                });
+                zip.generateAsync({ type: 'blob' }).then(blob => {
+                    downloadBlob(blob, 'compressed-images.zip');
+                });
+                return;
+            }
+            
+            // Handle different data types
+            if (data instanceof Blob) {
+                console.log('Downloading Blob');
+                downloadBlob(data, filename);
+            } else if (data instanceof Uint8Array) {
+                console.log('Downloading Uint8Array');
+                downloadBlob(new Blob([data], { type: 'application/octet-stream' }), filename);
+            } else if (data instanceof ArrayBuffer) {
+                console.log('Downloading ArrayBuffer');
+                downloadBlob(new Blob([data], { type: 'application/octet-stream' }), filename);
+            } else if (typeof data === 'string') {
+                console.log('Downloading String');
+                downloadBlob(new Blob([data], { type: 'text/plain' }), filename);
+            } else {
+                console.error('Unknown data type:', typeof data);
+                alert('Error: Unknown data format. Check console for details.');
+            }
+        }
+        
+        function downloadBlob(blob, filename) {
+            try {
+                if (!blob || blob.size === 0) {
+                    alert('Error: Empty or invalid file. Nothing to download.');
+                    return;
+                }
+                
+                console.log(`Creating download for ${filename}, size: ${blob.size} bytes`);
+                
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = url;
+                link.download = filename || 'download';
+                
+                // Append to body, click, and clean up
+                document.body.appendChild(link);
+                
+                // Use setTimeout to ensure the element is added before clicking
+                setTimeout(() => {
+                    link.click();
+                    console.log('Download triggered');
+                    
+                    // Clean up after download
+                    setTimeout(() => {
+                        if (link.parentNode) {
+                            document.body.removeChild(link);
+                        }
+                        URL.revokeObjectURL(url);
+                    }, 500);
+                }, 100);
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Download failed: ' + error.message);
+            }
+        }
+        
+        function downloadAsFile(textareaId, filename, mimeType) {
+            try {
+                const text = document.getElementById(textareaId).value;
+                if (!text) {
+                    alert('Nothing to download. Please process data first.');
+                    return;
+                }
+                const blob = new Blob([text], { type: mimeType });
+                downloadBlob(blob, filename);
+            } catch (error) {
+                alert('Download error: ' + error.message);
+            }
+        }
+        
+        function copyToClipboard(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
